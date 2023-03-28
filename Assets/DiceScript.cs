@@ -16,6 +16,8 @@ public class DiceScript : MonoBehaviour
         rb.GetComponent<Rigidbody>();
         initialPos = transform.position;
         _ds = GetComponentsInChildren<AnotherScript>();
+
+        rb.useGravity = false;
     }
 
     private void Update()
@@ -23,6 +25,18 @@ public class DiceScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             RollDice();
+        }
+
+        if (rb.IsSleeping() && !hasLanded && Thrown)
+        {
+            hasLanded = true;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
+        else if (rb.IsSleeping() && hasLanded && DiceValue==0)
+        {
+            RollAgain();
         }
     }
 
@@ -36,7 +50,28 @@ public class DiceScript : MonoBehaviour
         }
         else if (Thrown && hasLanded)
         {
-            
+            Reset();
         }
+    }
+
+    void Reset()
+    {
+        transform.position = initialPos;
+        Thrown = false;
+        hasLanded = false;
+        rb.useGravity = false;
+        rb.isKinematic = false;
+    }
+
+    void RollAgain()
+    {
+        Reset();
+        Thrown = true;
+        rb.useGravity = true;
+        rb.AddTorque(
+            Random.Range(25, 100),
+            Random.Range(25, 100),
+            Random.Range(25, 100)
+            );
     }
 }
